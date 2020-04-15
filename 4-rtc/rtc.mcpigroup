@@ -1,0 +1,6 @@
+[PROJECTS]
+Count=2
+Project0=..\3-display-lcd\display-lcd.mcppi
+Project1=rtc.mcppi
+[ActiveProject]
+Index=1
