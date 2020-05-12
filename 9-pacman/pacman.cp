@@ -1,4 +1,4 @@
-#line 1 "C:/Users/alexb/Desktop/eletiva_iv/projetos/9-pacman/pacman.c"
+#line 1 "C:/Users/alexb/Documents/repositories/microcontroladora-pic/9-pacman/pacman.c"
 
 sbit LCD_RS at RE0_bit;
 sbit LCD_EN at RE1_bit;
@@ -44,8 +44,7 @@ void InitTimer2_Int0(){
 }
 
 void interrupt() {
- if(int0if_bit)
- {
+ if(int0if_bit) {
  cnt2++;
 
  if(cnt2>4){
@@ -66,8 +65,7 @@ void interrupt() {
 }
 
 
-short Le_Teclado()
-{
+short Le_Teclado() {
  PORTD = 0B00010000;
  if (PORTA.RA5 == 1) {
  while(PORTA.RA5 == 1);
@@ -143,8 +141,7 @@ short Le_Teclado()
  return 255;
 }
 
-void Pula_Linha(void)
-{
+void Pula_Linha(void) {
  UART1_WRITE(13);
  UART1_WRITE(10);
 }
@@ -164,8 +161,7 @@ void CustomChar() {
  LCD_Cmd(_LCD_RETURN_HOME);
 }
 
-void Alert()
-{
+void Alert() {
  int i;
  for(i=0; i<1; i++) {
  Lcd_Cmd(_LCD_SHIFT_RIGHT);
@@ -177,8 +173,7 @@ void Alert()
  }
 }
 
-void Write_EEPROM(int END, int DADO)
-{
+void Write_EEPROM(int END, int DADO) {
  I2C1_Start();
  I2C1_Wr(0xA0);
  I2C1_Wr(END);
@@ -187,8 +182,7 @@ void Write_EEPROM(int END, int DADO)
  delay_ms(10);
 }
 
-int Read_EEPROM(int END)
-{
+int Read_EEPROM(int END) {
  int Dado;
  I2C1_Start();
  I2C1_Wr(0xA0);
@@ -200,8 +194,7 @@ int Read_EEPROM(int END)
  return(Dado);
 }
 
-void Write_RTC(int END, int DADO)
-{
+void Write_RTC(int END, int DADO) {
  I2C1_Start();
  I2C1_Wr(0xD0);
  I2C1_Wr(END);
@@ -209,8 +202,7 @@ void Write_RTC(int END, int DADO)
  I2C1_Stop();
 }
 
-int Read_RTC(int END)
-{
+int Read_RTC(int END) {
  int Dado;
  I2C1_Start();
  I2C1_Wr(0xD0);
@@ -235,11 +227,13 @@ void Le_Entrada_Cmd(char slot[], int showInput, int row, int column) {
  slot[i] = 0;
  }
  i = 0;
- while((_char = Le_Teclado()) != '=')
- {
+ while((_char = Le_Teclado()) != '=') {
  if (_char != 255) {
  if (_char == '*') {
- if (i > 0) i--;
+ if (i > 0) {
+ i--;
+ }
+
  slot[i] = 0;
  if (showInput) {
  Lcd_Out(row, column + i, " ");
@@ -266,8 +260,7 @@ void Le_Entrada_Cp(char slot[], int row, int column) {
 char command;
 short drawInfoLabel = 1;
 char HORA_TXT[20];
-void main()
- {
+void main() {
  UART1_Init(19200);
  I2C1_Init(100000);
 

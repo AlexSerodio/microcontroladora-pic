@@ -24,10 +24,11 @@ File0=pacman.c
 [OTHER_FILES]
 Count=0
 [SEARCH_PATH]
-Count=3
+Count=4
 Path0=C:\Users\alexb\Desktop\eletiva_iv\softwares\mikroC PRO for PIC\defs\
 Path1=C:\Users\alexb\Desktop\eletiva_iv\softwares\mikroC PRO for PIC\uses\P18\
-Path2=C:\Users\alexb\Desktop\eletiva_iv\projetos\9-pacman\
+Path2=C:\Users\alexb\Documents\repositories\microcontroladora-pic\9-pacman\
+Path3=C:\Users\alexb\Desktop\eletiva_iv\projetos\9-pacman\
 [HEADER_PATH]
 Count=0
 [HEADERS]
