@@ -1,0 +1,6 @@
+[PROJECTS]
+Count=2
+Project0=..\8-interupcao-esteira\interupcao-esteira.mcppi
+Project1=pacman.mcppi
+[ActiveProject]
+Index=1
