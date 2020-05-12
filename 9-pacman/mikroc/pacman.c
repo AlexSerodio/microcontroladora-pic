@@ -34,14 +34,6 @@ void InitTimer2_Int0(){
 
 }
 
-void interrupt() {
-     if(int0_bit) {
-        PORTA = ~PORTA;
-        int0_bit = 0;
-     }
-}
-
-
 short Le_Teclado() {
         PORTD = 0B00010000; // VOCÊ SELECIONOU LA
         if (PORTA.RA5 == 1) {
@@ -116,6 +108,15 @@ short Le_Teclado() {
         }
 
         return 255;
+}
+
+void interrupt() {
+     if(int0_bit) {
+        char variavel_top;
+        variavel_top = Le_Teclado();
+        UART1_Write(variavel_top);
+        int0_bit = 0;
+     }
 }
 
 void Pula_Linha(void) {
