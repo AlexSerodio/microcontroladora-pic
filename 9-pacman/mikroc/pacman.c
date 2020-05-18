@@ -235,6 +235,34 @@ void Le_Entrada_Cp(char slot[], int row, int column) {
     Le_Entrada_Cmd(slot, 1, row, column);
 }
 
+char world[4][20] = {
+	{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+	{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+	{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
+	{'.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'}
+};
+
+struct Pacman{
+     int X;
+     int Y;
+     char value;
+} pacman;
+
+void init_pacman_position() {
+     pacman.X = 1;
+     pacman.Y = 0;
+     pacman.value = 'C';
+}
+
+void draw_world() {
+        int i;
+        
+        world[pacman.X][pacman.Y] = pacman.value;
+        for(i = 0; i < 4; i++) {
+		Lcd_Out(i+1, 1, world[i]);
+	}
+}
+
 char command;
 short drawInfoLabel = 1;
 char HORA_TXT[20];
@@ -253,11 +281,12 @@ void main() {
         Lcd_Cmd(_LCD_CURSOR_OFF);
         CustomChar();
 
-
-        InitTimer2_Int0();
+        init_pacman_position();
+        draw_world();
 
         while(1)
         {
+                //Lcd_Out(1, 1, "TEMP. ATUAL:");
                 command = Le_Teclado();
                 if (command == 'C') {
                         Lcd_Cmd(_LCD_CLEAR);
