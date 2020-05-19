@@ -47,13 +47,20 @@ unsigned short mapa[4][20];
  * Isso é:
  *      00 -> jogo correndo normal
  *      01 -> jogo pausado
- *      10 -> pacman morto fantasmas andando
- *      11 -> pacman morto jogo parado
+ *      10 -> pacman morto
+ *      11 -> jogo finalizado
  *
  * Os outros significam a pontuação.
  *
  */
 unsigned short estado;
+
+//i, j posição considerada
+//i_, j_, posição para o movimento
+int i;
+int j;
+int i_;
+int j_;
 
 /* Constantes */
 
@@ -68,19 +75,6 @@ unsigned short MASCARA_TIPO = 0B00000011;
 unsigned short MASCARA_PAUSE = 0B00000001;
 unsigned short MASCARA_VIVO = 0B00000010;
 
-
-void tick()
-{
-    preset()
-    for (int i = 0; i < sizeof(mapa); i++)
-    {
-        for (int j = 0; i < sizeof(mapa[i]); i++)
-        {
-            sub_tick(i, j);
-        }
-    }
-    swap();
-}
 
 unsigned short tipo(unsigned short obj)
 {
@@ -102,69 +96,17 @@ unsigned short morto()
     return estado & MASCARA_VIVO;
 }
 
-void sub_tick(int i, int j)
-{
-
-    if (tipo(mapa[i][j]) == 0)
-    {
-        //Parede ou item
-        return;
-    }
-
-    //i, j posição considerada
-    //m, n, posição para o movimento
-    int m = i;
-    int n = j;
-
-    unsigned short dire = direcao(mapa[i][j]);
-
-    if (dire == DIREITA)
-    {
-        n++;
-        if (n >= sizeof(mapa[i]))
-        {
-            n = 0;
-        }
-    }
-    else if (dire == ESQUERDA)
-    {
-        n--;
-        if (n < 0)
-        {
-            n = sizeof(mapa[i])-1;
-        }
-    }
-    else if (dire == BAIXO)
-    {
-        m++;
-        if (m >= sizeof(mapa))
-        {
-            m = 0;
-        }
-    }
-    else
-    {
-        m--;
-        if (m < 0)
-        {
-            m = sizeof(mapa)-1;
-        }
-    }
-
-
-}
-
 /*
  * Move os valores do buffer de trabalho (bits mais significativos)
  * e limpa o buffer de trabalho
  *
  * Isso é feito com o shift para a direita
  */
-void swap()
+void swap_buffer()
 {
-    for (int i = 0; i < sizeof(mapa); i++)
+    for (i = 0; i < sizeof(mapa); i++)
     {
-        for (int j = 0; i < sizeof(mapa[i]); i++)
+        for (j = 0; i < sizeof(mapa[i]); i++)
         {
             mapa[i][j] = mapa[i][j] >> 4;
         }
@@ -176,11 +118,103 @@ void swap()
  */
 void preset()
 {
-    for (int i = 0; i < sizeof(mapa); i++)
+    for (i = 0; i < sizeof(mapa); i++)
     {
-        for (int j = 0; i < sizeof(mapa[i]); i++)
+        for (j = 0; i < sizeof(mapa[i]); i++)
         {
             mapa[i][j] = (mapa[i][j] << 4) | mapa[i][j];
         }
     }
 }
+
+void sub_tick(int i, int j)
+{
+
+    if (tipo(mapa[i][j]) == 0)
+    {
+        //Parede ou item
+        return;
+    }
+
+    //i, j posição considerada
+    //i_, j_, posição para o movimento
+    i_ = i;
+    j_ = j;
+
+    unsigned short dire = direcao(mapa[i][j]);
+
+    if (dire == DIREITA)
+    {
+        j_++;
+        if (j_ >= sizeof(mapa[i]))
+        {
+            j_ = 0;
+        }
+    }
+    else if (dire == ESQUERDA)
+    {
+        j_--;
+        if (j_ < 0)
+        {
+            j_ = sizeof(mapa[i])-1;
+        }
+    }
+    else if (dire == BAIXO)
+    {
+        i_++;
+        if (i_ >= sizeof(mapa))
+        {
+            i_ = 0;
+        }
+    }
+    else
+    {
+        i_--;
+        if (i_ < 0)
+        {
+            i_ = sizeof(mapa)-1;
+        }
+    }
+
+    //indo em direção a parede
+    if (tipo(mapa[i_, j_]) == 0B0000100)
+    {
+        //fantasma
+        if (tipo(mapa[i, j]) == 0B00000001)
+        {
+            if (dire == DIREITA)
+            {
+                mapa[i, j] = (0B10010000) | (mapa[i, j] & 0b00001111)
+            }
+            else if (dire == ESQUERDA)
+            {
+                mapa[i, j] = (0B11010000) | (mapa[i, j] & 0b00001111)
+            }
+            else if (dire == BAIXO)
+            {
+                mapa[i, j] = (0B00010000) | (mapa[i, j] & 0b00001111)
+            }
+            else
+            {
+                mapa[i, j] = (0B01010000) | (mapa[i, j] & 0b00001111)
+            }
+        }
+        return;
+    }
+
+}
+
+
+void tick()
+{
+    preset();
+    for (i = 0; i < sizeof(mapa); i++)
+    {
+        for (j = 0; i < sizeof(mapa[i]); i++)
+        {
+            sub_tick(i, j);
+        }
+    }
+    swap();
+}
+
