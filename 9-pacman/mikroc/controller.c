@@ -4,33 +4,37 @@
     Matrix de bytes para simbolização dos estados de cada espaço do tabuleiro
 
     Os dois bits a direita (menos significativos) definem o que é:
-        00 -> espaço/item
+        00 -> pacman
         01 -> fantasma
-        10 -> pacman
-        11 -> pacman com power pill
+        10 -> espaço / item
+        11 -> pilula com fantasma
     Os dois bytes seguintes definem o estado
         00 -> espaço em branco  / movendo para a direita
         01 -> Parede            / movendo para a esquerda
         10 -> Pilula normal     / movendo para cima
-        11 -> Power pill        / movendo para baixo
+        11 ->                   / movendo para baixo
+
+
+    o caso 11 se refere à situação de um fantasma passando por cima de uma pilula
+
 
     De forma que:
-        0000 -> espaço em branco
+        0000 -> pacman indo para a direita
         0001 -> fantasma indo para a direita
-        0010 -> pacman indo para a direita
-        0011 -> pacman com power pill indo para a direita
-        0100 -> parede
+        0010 -> espaço em branco
+        0011 -> fantasma com pilula indo para a direita
+        0100 -> pacman indo para a esquerda
         0101 -> fantasma indo para a esquerda
-        0110 -> pacman indo para a esquerda
-        0111 -> pacman com power pill indo para a esquerda
-        1000 -> pilula
-        1001 -> Fantasma indo para cima
-        1010 -> Pacman indo para cima
-        1011 -> Pacman com power pill indo para cima
-        1100 -> power pill
+        0110 -> parede
+        0111 -> fantasma com pilula indo para a esquerda
+        1000 -> pacman indo para cima
+        1001 -> fantasma indo para cima
+        1010 -> pilula
+        1011 -> fantasma com pilula indo para a cima
+        1100 -> pacman indo para baixo
         1101 -> fantasma indo para baixo
-        1110 -> pacman indo para baixo
-        1111 -> pacman com power pill indo para baixo
+        1110 -> N/A
+        1111 -> fantasma com pilula indo para a baixo
 
     Os quatro bits mais significativos são uma cópia da matriz
     Ela vai ser utilizada como buffer, pra realizar todas as operações em uma cópia, e depois faz o shift para a direita.
@@ -62,19 +66,23 @@ int j;
 int i_;
 int j_;
 
+int pi;
+int pj;
+
+unsigned short dire;
+
 /* Constantes */
 
-unsigned short DIREITA = 0B0000000;
+unsigned short DIREITA  = 0B00000000;
 unsigned short ESQUERDA = 0B00000100;
-unsigned short CIMA = 0B00001100;
-unsigned short BAIXO = 0B00001000;
+unsigned short BAIXO    = 0B00001000;
+unsigned short CIMA     = 0B00001100;
 
 unsigned short MASCARA_MOVIMENTO = 0B00001100;
 unsigned short MASCARA_TIPO = 0B00000011;
 
 unsigned short MASCARA_PAUSE = 0B00000001;
 unsigned short MASCARA_VIVO = 0B00000010;
-
 
 unsigned short tipo(unsigned short obj)
 {
@@ -86,6 +94,16 @@ unsigned short direcao(unsigned short obj)
     return obj & MASCARA_MOVIMENTO;
 }
 
+unsigned short pontuacao()
+{
+    return estado >> 2;
+}
+
+void set_pontuacao(unsigned short pto)
+{
+    estado = (pto << 2) | (estado & (MASCARA_PAUSE | MASCARA_VIVO));
+}
+
 unsigned short pausado()
 {
     return estado & MASCARA_PAUSE;
@@ -94,6 +112,46 @@ unsigned short pausado()
 unsigned short morto()
 {
     return estado & MASCARA_VIVO;
+}
+
+bool is_fantasma(unsigned short obj)
+{
+    return obj & 0B00000001 == 0B00000001;
+}
+
+bool is_pacman(unsigned short obj)
+{
+    return tipo(obj) == 0B00000000;
+}
+
+bool is_parede(unsigned short obj)
+{
+    return tipo(obj) == 0B00000110
+}
+
+bool is_vazio(unsigned short obj)
+{
+    return tipo(obj) == 0B00000010
+}
+
+bool is_pilula(unsigned short obj)
+{
+    return tipo(obj) == 0B00001010
+}
+
+bool has_pilula(unsigned short obj)
+{
+    return obj & 0B00000011 == 0B00000011;
+}
+
+bool is_direcao_oposta(unsigned short obj, unsigned short other)
+{
+    if ((obj & 0b00001000) !=  (other 0b00001000))
+    {
+        return 1;
+    }
+
+    return (obj & 0b000001000) != (other & 0b000001000);
 }
 
 /*
@@ -127,21 +185,14 @@ void preset()
     }
 }
 
-void sub_tick(int i, int j)
+void calc_direcao()
 {
-
-    if (tipo(mapa[i][j]) == 0)
-    {
-        //Parede ou item
-        return;
-    }
-
     //i, j posição considerada
     //i_, j_, posição para o movimento
     i_ = i;
     j_ = j;
 
-    unsigned short dire = direcao(mapa[i][j]);
+    dire = direcao(mapa[i][j]);
 
     if (dire == DIREITA)
     {
@@ -175,46 +226,133 @@ void sub_tick(int i, int j)
             i_ = sizeof(mapa)-1;
         }
     }
+}
 
-    //indo em direção a parede
-    if (tipo(mapa[i_, j_]) == 0B0000100)
+void tick_fantasma()
+{
+
+    calc_direcao();
+
+    if (is_pacman(mapa[i_, j_]))
     {
-        //fantasma
-        if (tipo(mapa[i, j]) == 0B00000001)
+        //TODO you lose
+    }
+    else if (is_parede(mapa[i_, j_]))
+    {
+        if (dire == DIREITA)
         {
-            if (dire == DIREITA)
+            mapa[i, j] = (mapa[i, j] & 0b11110011) | BAIXO;
+        }
+        else if (dire == ESQUERDA)
+        {
+            mapa[i, j] = (mapa[i, j] & 0b11110011) | CIMA;
+        }
+        else if (dire == BAIXO)
+        {
+            mapa[i, j] = (mapa[i, j] & 0b11110011) | ESQUERDA;
+        }
+        else
+        {
+            mapa[i, j] = (mapa[i, j] & 0b11110011) | DIREITA;
+        }
+        tick_fantasma();
+    }
+    else if (is_pilula(mapa[i_, j_]))
+    {
+        if (has_pilula(mapa[i, j]))
+        {
+            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | (mapa[i, j] << 4);
+            mapa[i, j] = (mapa[i, j] & 0B00001111) | (mapa[i_, j_] << 4);
+        }
+        else
+        {
+            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | ((dire | 0b00000011) << 4);
+            mapa[i, j] = (mapa[i, j] & 0B00001111) | 0b00100000;
+        }
+    }
+    else if (is_vazio(mapa[i_, j_]))
+    {
+        if (has_pilula(mapa[i, j]))
+        {
+            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | ((dire | 0b00000001) << 4);
+            mapa[i, j] = (mapa[i, j] & 0B00001111) | 0b10100000;
+        }
+        else
+        {
+            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | (mapa[i, j] << 4);
+            mapa[i, j] = (mapa[i, j] & 0B00001111) | (mapa[i_, j_] << 4);
+        }
+    }
+    else if (is_fantasma(mapa[i_, m_]))
+    {
+        if (is_direcao_oposta(dire, direcao(mapa[i_, j_])))
+        {
+            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | (mapa[i, j] << 4);
+            mapa[i, j] = (mapa[i, j] & 0B00001111) | (mapa[i_, j_] << 4);
+        }
+        else
+        {
+            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | (mapa[i, j] << 4);
+            mapa[i, j] = (mapa[i, j] & 0B00001111) | (0b00100000);
+        }
+    }
+}
+
+void tick_pacman()
+
+    calc_direcao();
+
+
+        if (is_fantasma(mapa[i_, j_]))
+        {
+            if (is_direcao_oposta(mapa[i, j], mapa[i_, j_]))
             {
-                mapa[i, j] = (0B10010000) | (mapa[i, j] & 0b00001111)
-            }
-            else if (dire == ESQUERDA)
-            {
-                mapa[i, j] = (0B11010000) | (mapa[i, j] & 0b00001111)
-            }
-            else if (dire == BAIXO)
-            {
-                mapa[i, j] = (0B00010000) | (mapa[i, j] & 0b00001111)
-            }
-            else
-            {
-                mapa[i, j] = (0B01010000) | (mapa[i, j] & 0b00001111)
+                //TODO you lose
+                return;
             }
         }
+
+        mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | (mapa[i, j] << 4);
+        mapa[i, j] = (mapa[i, j] & 0B00001111) | 0b00100000;
+
+        if (has_pilula(mapa[i_, j_]) || is_pilula(mapa[i_, j_]))
+        {
+            set_pontuacao(pontuacao() + 1);
+        }
+
         return;
-    }
 
 }
 
 
 void tick()
 {
+
     preset();
     for (i = 0; i < sizeof(mapa); i++)
     {
         for (j = 0; i < sizeof(mapa[i]); i++)
         {
-            sub_tick(i, j);
+            if (is_pacman(mapa[i, j]))
+            {
+                tick_pacman();
+            }
         }
     }
     swap();
+
+    preset();
+    for (i = 0; i < sizeof(mapa); i++)
+    {
+        for (j = 0; i < sizeof(mapa[i]); i++)
+        {
+            if (is_fantasma(mapa[i, j]))
+            {
+                tick_fantasma();
+            }
+        }
+    }
+    swap();
+
 }
 
