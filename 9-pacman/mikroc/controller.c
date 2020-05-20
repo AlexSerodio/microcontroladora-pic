@@ -1,45 +1,45 @@
 /* Variáveis globais */
 
 /*
-    Matrix de bytes para simbolização dos estados de cada espaço do tabuleiro
-
-    Os dois bits a direita (menos significativos) definem o que é:
-        00 -> pacman
-        01 -> fantasma
-        10 -> espaço / item
-        11 -> pilula com fantasma
-    Os dois bytes seguintes definem o estado
-        00 -> espaço em branco  / movendo para a direita
-        01 -> Parede            / movendo para a esquerda
-        10 -> Pilula normal     / movendo para cima
-        11 ->                   / movendo para baixo
-
-
-    o caso 11 se refere à situação de um fantasma passando por cima de uma pilula
-
-    Existe o caso especial do valo 1110, que é utilizado como nulo.
-
-
-    De forma que:
-        0000 -> pacman indo para a direita
-        0001 -> fantasma indo para a direita
-        0010 -> espaço em branco
-        0011 -> fantasma com pilula indo para a direita
-        0100 -> pacman indo para a esquerda
-        0101 -> fantasma indo para a esquerda
-        0110 -> parede
-        0111 -> fantasma com pilula indo para a esquerda
-        1000 -> pacman indo para cima
-        1001 -> fantasma indo para cima
-        1010 -> pilula
-        1011 -> fantasma com pilula indo para a cima
-        1100 -> pacman indo para baixo
-        1101 -> fantasma indo para baixo
-        1110 -> null
-        1111 -> fantasma com pilula indo para a baixo
-
-    Os quatro bits mais significativos são uma cópia da matriz
-    Ela vai ser utilizada como buffer, pra realizar todas as operações em uma cópia, e depois faz o shift para a direita.
+ *  Matrix de bytes para simbolização dos estados de cada espaço do tabuleiro
+ *
+ *  Os dois bits a direita (menos significativos) definem o que é:
+ *      00 -> pacman
+ *      01 -> fantasma
+ *      10 -> espaço / item
+ *      11 -> pilula com fantasma
+ *  Os dois bytes seguintes definem o estado
+ *      00 -> espaço em branco  / movendo para a direita
+ *      01 -> Parede            / movendo para a esquerda
+ *      10 -> Pilula normal     / movendo para cima
+ *      11 ->                   / movendo para baixo
+ *
+ *
+ *  o caso 11 se refere à situação de um fantasma passando por cima de uma pilula
+ *
+ *  Existe o caso especial do valo 1110, que é utilizado como nulo.
+ *
+ *
+ *  De forma que:
+ *      0000 -> pacman indo para a direita
+ *      0001 -> fantasma indo para a direita
+ *      0010 -> espaço em branco
+ *      0011 -> fantasma com pilula indo para a direita
+ *      0100 -> pacman indo para a esquerda
+ *      0101 -> fantasma indo para a esquerda
+ *      0110 -> parede
+ *      0111 -> fantasma com pilula indo para a esquerda
+ *      1000 -> pacman indo para cima
+ *      1001 -> fantasma indo para cima
+ *      1010 -> pilula
+ *      1011 -> fantasma com pilula indo para a cima
+ *      1100 -> pacman indo para baixo
+ *      1101 -> fantasma indo para baixo
+ *      1110 -> null
+ *      1111 -> fantasma com pilula indo para a baixo
+ *
+ *  Os quatro bits mais significativos são uma cópia da matriz
+ *  Ela vai ser utilizada como buffer, pra realizar todas as operações em uma cópia, e depois faz o shift para a direita.
  */
 unsigned short mapa[4][20];
 
@@ -54,12 +54,32 @@ unsigned short mapa[4][20];
  *      00 -> jogo correndo normal
  *      01 -> jogo pausado
  *      10 -> pacman morto
- *      11 -> jogo finalizado
+ *      11 -> N/a
  *
  * Os outros significam a pontuação.
  *
  */
 unsigned short estado;
+
+/*
+ * Variável verificada para aplicação de mudanças.
+ *
+ * o primeiro bit estar aceso faz com que o jogo troque entre pausado e correndo.
+ *
+ * o segundo bit indica se é desejado reiniciar o jogo.
+ * 
+ * os bits 3 e 4 (da direita para a esquerda) indicam a direção para qual mudar:
+ *   00 -> direita
+ *   01 -> esquerda
+ *   10 -> cima
+ *   11 -> baixo
+ *
+ * o quinto bit menos significante é lido como adicionar uma comida em uma
+ * posição pseudo aleatória
+ *
+ * o sexto bit é lido como adicionar um fantasma em uma posição pseudo aleatória
+ */
+unsigned short input;
 
 //i, j posição considerada
 //i_, j_, posição para o movimento
@@ -68,8 +88,7 @@ int j;
 int i_;
 int j_;
 
-int pi;
-int pj;
+int ramdom;
 
 unsigned short dire;
 
@@ -83,6 +102,7 @@ unsigned short CIMA     = 0B00001100;
 unsigned short NLL      = 0B00001110;
 unsigned short PILULA   = 0B00001010;
 unsigned short BRANCO   = 0B00000010; 
+unsigned short PAREDE   = 0B00000110; 
 
 unsigned short MASCARA_VALOR = 0B00001111;
 unsigned short MASCARA_MOVIMENTO = 0B00001100;
@@ -145,42 +165,42 @@ unsigned short morto()
     return estado & MASCARA_VIVO;
 }
 
-bool is_fantasma(unsigned short obj)
+unsigned short is_fantasma(unsigned short obj)
 {
     return obj & 0B00000001 == 0B00000001;
 }
 
-bool is_pacman(unsigned short obj)
+unsigned short is_pacman(unsigned short obj)
 {
     return tipo(obj) == 0B00000000;
 }
 
-bool is_parede(unsigned short obj)
+unsigned short is_parede(unsigned short obj)
 {
     return valor(obj) == 0B00000110
 }
 
-bool is_vazio(unsigned short obj)
+unsigned short is_vazio(unsigned short obj)
 {
     return valor(obj) == 0B00000010
 }
 
-bool is_null(unsigned short obj)
+unsigned short is_null(unsigned short obj)
 {
     return valor(obj) = 0B00001110;
 }
 
-bool is_pilula(unsigned short obj)
+unsigned short is_pilula(unsigned short obj)
 {
     return valor(obj) == 0B00001010
 }
 
-bool has_pilula(unsigned short obj)
+unsigned short has_pilula(unsigned short obj)
 {
     return obj & 0B00000011 == 0B00000011;
 }
 
-bool is_direcao_oposta(unsigned short obj, unsigned short other)
+unsigned short is_direcao_oposta(unsigned short obj, unsigned short other)
 {
     if ((obj & 0b00001000) !=  (other 0b00001000))
     {
@@ -299,7 +319,7 @@ void tick_fantasma()
     }
     else if (is_pacman(buffer_value(mapa[i_][j_])))
     {
-        //TODO you lose
+        estado = estado | MASCARA_VIVO;
     }
     else if (is_fantasma(mapa[i_][j_]))
     {
@@ -383,11 +403,17 @@ void tick_fantasma()
 
 void tick_pacman()
 
+    if (valor(input) != NLL)
+    {
+        //muda a direção se input for não nill
+        mapa[i][j] = (mapa[i][j] & 0B11110011) & direcao(input);
+    }
+
     calc_direcao();
 
     if (is_fantasma(buffer_value(mapa[i_][j_])))
     {
-        //TODO you lose
+        estado = estado | MASCARA_VIVO;
         return;
     }
 
@@ -395,7 +421,7 @@ void tick_pacman()
     {
         if (is_direcao_oposta(mapa[i][j], mapa[i_][j_]))
         {
-            //TODO you lose
+            estado = estado | MASCARA_VIVO;
             return;
         }
     }
@@ -412,9 +438,96 @@ void tick_pacman()
 
 }
 
+void add_pilula()
+{
+    i = rand() % sizeof(mapa);
+    j = rand() % sizeof(mapa[i]);
+    if (is_vazio(mapa[i][j]))
+    {
+        mapa[i][j] = PILULA;
+    }
+    else if (is_fantasma(mapa[i][j]) && !has_pilula(mapa[i][j]))
+    {
+        mapa[i][j] = add_pilula(mapa[i][j]);
+    }
+    else
+    {
+        add_pilula();
+    }
+}
+
+void add_fantasma()
+{
+    i = rand() % sizeof(mapa);
+    j = rand() % sizeof(mapa[i]);
+    if (is_vazio(mapa[i][j]))
+    {
+        mapa[i][j] = 0B00000001;
+    }
+    else
+    {
+        add_fantasma();
+    }
+}
+
+void reset()
+{
+    for (i = 0; i < sizeof(mapa); i++)
+    {
+        for (j = 0; i < sizeof(mapa[i]); i++)
+        {
+            if (!(j%i) && !(j%3))
+            {
+                mapa[i][j] = PAREDE;
+            }
+            else
+            {
+                mapa[i][j] = BRANCO;
+            }
+        }
+    }
+    add_pilula();
+    add_fantasma();
+}
+
 
 void tick()
 {
+
+    if (input & MASCARA_PAUSE)
+    {
+        estado = estado ^ MASCARA_PAUSE;
+        input = 0b00000000;
+    }
+
+    if (input & MASCARA_VIVO)
+    {
+        reset();
+        input = 0b00000000;
+        return;
+    }
+
+    if (!valor(input) && buffer_value(input))
+    {
+        if (buffer_value(input) & MASCARA_PAUSE)
+        {
+            add_pilula();
+            input = 0b00000000;
+            return;
+        }
+        if (buffer_value(input) & MASCARA_PAUSE)
+        {
+            add_fantasma();
+            input = 0b00000000;
+            return;
+        }
+    }
+
+    if (pausado() || morto())
+    {
+        input = 0b00000000;
+        return;
+    }
 
     preset();
     for (i = 0; i < sizeof(mapa); i++)
@@ -432,5 +545,7 @@ void tick()
         }
     }
     swap_buffer();
+
+    input = 0b00000000;
 }
 
