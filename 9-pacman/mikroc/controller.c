@@ -17,6 +17,8 @@
 
     o caso 11 se refere à situação de um fantasma passando por cima de uma pilula
 
+    Existe o caso especial do valo 1110, que é utilizado como nulo.
+
 
     De forma que:
         0000 -> pacman indo para a direita
@@ -33,7 +35,7 @@
         1011 -> fantasma com pilula indo para a cima
         1100 -> pacman indo para baixo
         1101 -> fantasma indo para baixo
-        1110 -> N/A
+        1110 -> null
         1111 -> fantasma com pilula indo para a baixo
 
     Os quatro bits mais significativos são uma cópia da matriz
@@ -78,15 +80,44 @@ unsigned short ESQUERDA = 0B00000100;
 unsigned short BAIXO    = 0B00001000;
 unsigned short CIMA     = 0B00001100;
 
+unsigned short NLL      = 0B00001110;
+unsigned short PILULA   = 0B00001010;
+unsigned short BRANCO   = 0B00000010; 
+
+unsigned short MASCARA_VALOR = 0B00001111;
 unsigned short MASCARA_MOVIMENTO = 0B00001100;
 unsigned short MASCARA_TIPO = 0B00000011;
-
 unsigned short MASCARA_PAUSE = 0B00000001;
 unsigned short MASCARA_VIVO = 0B00000010;
 
 unsigned short tipo(unsigned short obj)
 {
     return obj & MASCARA_TIPO;
+}
+
+unsigned short valor(unsigned short obj)
+{
+    return obj & MASCARA_VALOR;
+}
+
+unsigned short buffer_value(unsigned short obj)
+{
+    return obj >> 4;
+}
+
+unsigned short do_buffer(unsigned short obj)
+{
+    return obj >> 4;
+}
+
+unsigned short add_pilula(unsigned short obj)
+{
+    return obj | 0b00000010;
+}
+
+unsigned short pop_pilula(unsigned short obj)
+{
+    return obj & 0b11111101;
 }
 
 unsigned short direcao(unsigned short obj)
@@ -126,17 +157,22 @@ bool is_pacman(unsigned short obj)
 
 bool is_parede(unsigned short obj)
 {
-    return tipo(obj) == 0B00000110
+    return valor(obj) == 0B00000110
 }
 
 bool is_vazio(unsigned short obj)
 {
-    return tipo(obj) == 0B00000010
+    return valor(obj) == 0B00000010
+}
+
+bool is_null(unsigned short obj)
+{
+    return valor(obj) = 0B00001110;
 }
 
 bool is_pilula(unsigned short obj)
 {
-    return tipo(obj) == 0B00001010
+    return valor(obj) == 0B00001010
 }
 
 bool has_pilula(unsigned short obj)
@@ -166,7 +202,10 @@ void swap_buffer()
     {
         for (j = 0; i < sizeof(mapa[i]); i++)
         {
-            mapa[i][j] = mapa[i][j] >> 4;
+            if (mapa[i][j] != NLL)
+            {
+                mapa[i][j] = buffer_value(mapa[i][j]);
+            }
         }
     }
 }
@@ -180,7 +219,7 @@ void preset()
     {
         for (j = 0; i < sizeof(mapa[i]); i++)
         {
-            mapa[i][j] = (mapa[i][j] << 4) | mapa[i][j];
+            mapa[i][j] = (NLL << 4) | mapa[i][j];
         }
     }
 }
@@ -228,72 +267,116 @@ void calc_direcao()
     }
 }
 
+void muda_direcao()
+{
+    if (dire == DIREITA)
+    {
+        mapa[i][j] = (mapa[i][j] & 0b11110011) | BAIXO;
+    }
+    else if (dire == ESQUERDA)
+    {
+        mapa[i][j] = (mapa[i][j] & 0b11110011) | CIMA;
+    }
+    else if (dire == BAIXO)
+    {
+        mapa[i][j] = (mapa[i][j] & 0b11110011) | ESQUERDA;
+    }
+    else
+    {
+        mapa[i][j] = (mapa[i][j] & 0b11110011) | DIREITA;
+    }
+}
+
 void tick_fantasma()
 {
 
     calc_direcao();
 
-    if (is_pacman(mapa[i_, j_]))
+    if (is_parede(mapa[i_][j_]) || is_fantasma(buffer_value(mapa[i_][j_])))
+    {
+        muda_direcao();
+        tick_fantasma();
+    }
+    else if (is_pacman(buffer_value(mapa[i_][j_])))
     {
         //TODO you lose
     }
-    else if (is_parede(mapa[i_, j_]))
+    else if (is_fantasma(mapa[i_][j_]))
     {
-        if (dire == DIREITA)
+        if (is_direcao_oposta(dire, direcao(mapa[i_][j_])))
         {
-            mapa[i, j] = (mapa[i, j] & 0b11110011) | BAIXO;
-        }
-        else if (dire == ESQUERDA)
-        {
-            mapa[i, j] = (mapa[i, j] & 0b11110011) | CIMA;
-        }
-        else if (dire == BAIXO)
-        {
-            mapa[i, j] = (mapa[i, j] & 0b11110011) | ESQUERDA;
+            if (!has_pilula(mapa[i][j]) & has_pilula(mapa[i_][j_]))
+            {
+                mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(add_pilula(mapa[i][j]));
+            }
+            else if (has_pilula(mapa[i][j]) & !has_pilula(mapa[i_][j_]))
+            {
+                mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(pop_pilula(mapa[i][j]));
+            }
+            else
+            {
+                mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(mapa[i][j]);
+            }
         }
         else
         {
-            mapa[i, j] = (mapa[i, j] & 0b11110011) | DIREITA;
-        }
-        tick_fantasma();
-    }
-    else if (is_pilula(mapa[i_, j_]))
-    {
-        if (has_pilula(mapa[i, j]))
-        {
-            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | (mapa[i, j] << 4);
-            mapa[i, j] = (mapa[i, j] & 0B00001111) | (mapa[i_, j_] << 4);
-        }
-        else
-        {
-            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | ((dire | 0b00000011) << 4);
-            mapa[i, j] = (mapa[i, j] & 0B00001111) | 0b00100000;
-        }
-    }
-    else if (is_vazio(mapa[i_, j_]))
-    {
-        if (has_pilula(mapa[i, j]))
-        {
-            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | ((dire | 0b00000001) << 4);
-            mapa[i, j] = (mapa[i, j] & 0B00001111) | 0b10100000;
-        }
-        else
-        {
-            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | (mapa[i, j] << 4);
-            mapa[i, j] = (mapa[i, j] & 0B00001111) | (mapa[i_, j_] << 4);
+
+            if (has_pilula(mapa[i_][j_]))
+            {
+                mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(add_pilula(mapa[i][j]));
+            }
+            else
+            {
+                mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(pop_pilula(mapa[i][j]));
+            }
+
+            if (has_pilula(mapa[i][j]))
+            {
+                mapa[i][j] = valor(mapa[i][j]) | do_buffer(PILULA);
+            }
+            else
+            {
+                mapa[i][j] = valor(mapa[i][j]) | do_buffer(BRANCO);
+            }
         }
     }
-    else if (is_fantasma(mapa[i_, m_]))
+    else if (is_pilula(mapa[i_][j_]))
     {
-        if (is_direcao_oposta(dire, direcao(mapa[i_, j_])))
+        if (has_pilula(mapa[i][j]))
         {
-            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | (mapa[i, j] << 4);
-            mapa[i, j] = (mapa[i, j] & 0B00001111) | (mapa[i_, j_] << 4);
+            mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(mapa[i][j]);
+            if (buffer_value(mapa[i][j]) == NLL)
+            {
+                mapa[i][j] = valor(mapa[i][j]) | do_buffer(mapa[i_][j_]);
+            }
         }
         else
         {
-            mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | (mapa[i, j] << 4);
-            mapa[i, j] = (mapa[i, j] & 0B00001111) | (0b00100000);
+            mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(add_pilula(mapa[i][j]));
+            if (buffer_value(mapa[i][j]) == NLL)
+            {
+                mapa[i][j] = valor(mapa[i][j]) | do_buffer(BRANCO);
+            }
+        }
+    }
+    else if (is_vazio(mapa[i_][j_]))
+    {
+        if (has_pilula(mapa[i][j]))
+        {
+            mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(pop_pilula(mapa[i][j]));
+            if (buffer_value(mapa[i][j]) == NLL)
+            {
+                mapa[i][j] = valor(mapa[i][j]) | do_buffer(PILULA);
+            }
+            
+        }
+        else
+        {
+            mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(mapa[i][j]);
+            if (buffer_value(mapa[i][j]) == NLL)
+            {
+                mapa[i][j] = valor(mapa[i][j]) | do_buffer(BRANCO);
+            }
         }
     }
 }
@@ -302,25 +385,30 @@ void tick_pacman()
 
     calc_direcao();
 
-
-        if (is_fantasma(mapa[i_, j_]))
-        {
-            if (is_direcao_oposta(mapa[i, j], mapa[i_, j_]))
-            {
-                //TODO you lose
-                return;
-            }
-        }
-
-        mapa[i_, j_] = (mapa[i_, j_] & 0B00001111) | (mapa[i, j] << 4);
-        mapa[i, j] = (mapa[i, j] & 0B00001111) | 0b00100000;
-
-        if (has_pilula(mapa[i_, j_]) || is_pilula(mapa[i_, j_]))
-        {
-            set_pontuacao(pontuacao() + 1);
-        }
-
+    if (is_fantasma(buffer_value(mapa[i_][j_])))
+    {
+        //TODO you lose
         return;
+    }
+
+    if (is_fantasma(mapa[i_][j_]))
+    {
+        if (is_direcao_oposta(mapa[i][j], mapa[i_][j_]))
+        {
+            //TODO you lose
+            return;
+        }
+    }
+
+    mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(mapa[i][j]);
+    mapa[i][j] = valor(mapa[i][j]) | do_buffer(BRANCO);
+
+    if (has_pilula(mapa[i_][j_]) || is_pilula(mapa[i_][j_]))
+    {
+        set_pontuacao(pontuacao() + 1);
+    }
+
+    return;
 
 }
 
@@ -333,26 +421,16 @@ void tick()
     {
         for (j = 0; i < sizeof(mapa[i]); i++)
         {
-            if (is_pacman(mapa[i, j]))
+            if (is_pacman(mapa[i][j]))
             {
                 tick_pacman();
             }
-        }
-    }
-    swap();
-
-    preset();
-    for (i = 0; i < sizeof(mapa); i++)
-    {
-        for (j = 0; i < sizeof(mapa[i]); i++)
-        {
-            if (is_fantasma(mapa[i, j]))
+            if (is_fantasma(mapa[i][j]))
             {
                 tick_fantasma();
             }
         }
     }
-    swap();
-
+    swap_buffer();
 }
 
