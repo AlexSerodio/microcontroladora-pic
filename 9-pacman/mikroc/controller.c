@@ -262,6 +262,10 @@ void swap_buffer()
             {
                 mapa[i][j] = buffer_value(mapa[i][j]);
             }
+            else
+            {
+                mapa[i][j] = valor(mapa[i][j]);
+            }
         }
     }
 }
