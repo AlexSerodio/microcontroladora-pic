@@ -179,22 +179,22 @@ unsigned short is_pacman(unsigned short obj)
 
 unsigned short is_parede(unsigned short obj)
 {
-    return valor(obj) == 0B00000110
+    return valor(obj) == 0B00000110;
 }
 
 unsigned short is_vazio(unsigned short obj)
 {
-    return valor(obj) == 0B00000010
+    return valor(obj) == 0B00000010;
 }
 
 unsigned short is_null(unsigned short obj)
 {
-    return valor(obj) = 0B00001110;
+    return valor(obj) == 0B00001110;
 }
 
 unsigned short is_pilula(unsigned short obj)
 {
-    return valor(obj) == 0B00001010
+    return valor(obj) == 0B00001010;
 }
 
 unsigned short has_pilula(unsigned short obj)
@@ -204,7 +204,7 @@ unsigned short has_pilula(unsigned short obj)
 
 unsigned short is_direcao_oposta(unsigned short obj, unsigned short other)
 {
-    if ((obj & 0b00001000) !=  (other 0b00001000))
+    if ((obj & 0b00001000) !=  (other & 0b00001000))
     {
         return 0;
     }
@@ -447,7 +447,7 @@ void tick_pacman()
     }
 }
 
-void add_pilula()
+void add_pilula_mapa()
 {
     i = rand() % sizeof(mapa);
     j = rand() % sizeof(mapa[i]);
@@ -461,7 +461,7 @@ void add_pilula()
     }
     else
     {
-        add_pilula();
+        add_pilula_mapa();
     }
 }
 
@@ -495,7 +495,7 @@ void reset()
             }
         }
     }
-    add_pilula();
+    add_pilula_mapa();
     add_fantasma();
     mapa[0][0] = 0b00000000;
 }
@@ -521,7 +521,7 @@ void tick()
     {
         if (buffer_value(input) & MASCARA_PAUSE)
         {
-            add_pilula();
+            add_pilula_mapa();
             input = 0b00000000;
             return;
         }
@@ -558,4 +558,3 @@ void tick()
 
     input = 0b00000000;
 }
-
