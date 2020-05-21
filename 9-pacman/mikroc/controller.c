@@ -531,7 +531,7 @@ void reset()
     {
         for (j = 0; j < 20; j++)
         {
-            if (!((j+i)%5) || j==i)
+            if (!((j+i)%6) || j%4==i%3)
             {
                mapa[i][j] = PAREDE;
             }
