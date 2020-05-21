@@ -180,7 +180,7 @@ unsigned short is_fantasma(unsigned short obj)
 
 unsigned short is_pacman(unsigned short obj)
 {
-    if tipo(obj) == 0B00000000
+    if (tipo(obj) == 0B00000000)
     {
         return 1;
     }
@@ -189,7 +189,7 @@ unsigned short is_pacman(unsigned short obj)
 
 unsigned short is_parede(unsigned short obj)
 {
-    if valor(obj) == 0B00000110
+    if (valor(obj) == 0B00000110)
     {
         return 1;
     }
@@ -198,7 +198,7 @@ unsigned short is_parede(unsigned short obj)
 
 unsigned short is_pilula(unsigned short obj)
 {
-    if valor(obj) == 0B00001010
+    if (valor(obj) == 0B00001010)
     {
         return 1;
     }
@@ -207,7 +207,7 @@ unsigned short is_pilula(unsigned short obj)
 
 unsigned short is_vazio(unsigned short obj)
 {
-    if valor(obj) == 0B00000010
+    if (valor(obj) == 0B00000010)
     {
         return 1;
     }
@@ -216,7 +216,7 @@ unsigned short is_vazio(unsigned short obj)
 
 unsigned short is_null(unsigned short obj)
 {
-    if valor(obj) == 0B00001110
+    if (valor(obj) == 0B00001110)
     {
         return 1;
     }
@@ -225,7 +225,11 @@ unsigned short is_null(unsigned short obj)
 
 unsigned short has_pilula(unsigned short obj)
 {
-    return obj & 0B00000011 == 0B00000011;
+    if (obj & 0B00000011 == 0B00000011)
+    {
+        return 1;
+    }
+    return 0;
 }
 
 unsigned short is_direcao_oposta(unsigned short obj, unsigned short other)
@@ -235,7 +239,7 @@ unsigned short is_direcao_oposta(unsigned short obj, unsigned short other)
         return 0;
     }
 
-    if (obj & 0b000001000) != (other & 0b000001000);
+    if (obj & 0b000001000) != (other & 0b000001000)
     {
         return 1;
     }
