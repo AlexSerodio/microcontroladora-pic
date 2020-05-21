@@ -477,7 +477,7 @@ void tick_pacman()
     }
     else if (is_parede(mapa[i_][j_]))
     {
-        mapa[i][j] = valor(mapa[i][j]) | buffer_value(mapa[i][j]);
+        mapa[i][j] = valor(mapa[i][j]) | do_buffer(mapa[i][j]);
     }
     else
     {
