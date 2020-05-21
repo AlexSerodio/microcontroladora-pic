@@ -528,18 +528,18 @@ void reset()
     {
         for (j = 0; j < 20; j++)
         {
-            //if (!(j+i3))
-            //{
-            //    mapa[i][j] = PAREDE;
-            //}
-            //else
-            //{
+            if (!(j+i3))
+            {
+               mapa[i][j] = PAREDE;
+            }
+            else
+            {
                 mapa[i][j] = BRANCO;
-            //}
+            }
         }
     }
     add_pilula_mapa();
-    //add_fantasma();
+    add_fantasma();
     mapa[0][0] = 0b00000000;
 }
 
