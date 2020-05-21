@@ -239,7 +239,7 @@ unsigned short is_direcao_oposta(unsigned short obj, unsigned short other)
         return 0;
     }
 
-    if (obj & 0b000001000) != (other & 0b000001000)
+    if ((obj & 0b000001000) != (other & 0b000001000))
     {
         return 1;
     }
