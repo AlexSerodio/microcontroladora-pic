@@ -448,6 +448,7 @@ void tick_pacman()
     {
         //muda a direção se input for não nill
         mapa[i][j] = (mapa[i][j] & 0B11110011) & direcao(input);
+        input = 0b00000000;
     }
 
     calc_direcao();
@@ -592,8 +593,6 @@ void tick()
         }
     }
     swap_buffer();
-
-    input = 0b00000000;
 }
 
 
