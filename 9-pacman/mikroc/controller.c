@@ -516,6 +516,7 @@ void add_fantasma()
         if (is_vazio(mapa[i][j]))
         {
             mapa[i][j] = 0B00000001;
+            break;
         }
     }
 
@@ -537,7 +538,7 @@ void reset()
             //}
         }
     }
-    //add_pilula_mapa();
+    add_pilula_mapa();
     //add_fantasma();
     mapa[0][0] = 0b00000000;
 }
