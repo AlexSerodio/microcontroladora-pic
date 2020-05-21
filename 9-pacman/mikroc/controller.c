@@ -312,14 +312,16 @@ void muda_direcao()
 void tick_fantasma()
 {
 
-    calc_direcao();
-
-    if (is_parede(mapa[i_][j_]) || is_fantasma(buffer_value(mapa[i_][j_])))
-    {
-        muda_direcao();
-        tick_fantasma();
+    for (int k = 0; k < 4; i++) {
+        calc_direcao();
+        if (is_parede(mapa[i_][j_]) || is_fantasma(buffer_value(mapa[i_][j_])))
+        {
+            muda_direcao();
+            continue;
+        }
+        return;
     }
-    else if (is_pacman(buffer_value(mapa[i_][j_])))
+    if (is_pacman(buffer_value(mapa[i_][j_])))
     {
         estado = estado | MASCARA_VIVO;
     }
@@ -449,34 +451,35 @@ void tick_pacman()
 
 void add_pilula_mapa()
 {
-    i = rand() % sizeof(mapa);
-    j = rand() % sizeof(mapa[i]);
-    if (is_vazio(mapa[i][j]))
+    while 1
     {
-        mapa[i][j] = PILULA;
-    }
-    else if (is_fantasma(mapa[i][j]) && !has_pilula(mapa[i][j]))
-    {
-        mapa[i][j] = add_pilula(mapa[i][j]);
-    }
-    else
-    {
-        add_pilula_mapa();
+        i = rand() % sizeof(mapa);
+        j = rand() % sizeof(mapa[i]);
+        if (is_vazio(mapa[i][j]))
+        {
+            mapa[i][j] = PILULA;
+            break;
+        }
+        else if (is_fantasma(mapa[i][j]) && !has_pilula(mapa[i][j]))
+        {
+            mapa[i][j] = add_pilula(mapa[i][j]);
+            break;
+        }
     }
 }
 
 void add_fantasma()
 {
-    i = rand() % sizeof(mapa);
-    j = rand() % sizeof(mapa[i]);
-    if (is_vazio(mapa[i][j]))
+    while 1
     {
-        mapa[i][j] = 0B00000001;
+        i = rand() % sizeof(mapa);
+        j = rand() % sizeof(mapa[i]);
+        if (is_vazio(mapa[i][j]))
+        {
+            mapa[i][j] = 0B00000001;
+        }
     }
-    else
-    {
-        add_fantasma();
-    }
+
 }
 
 void reset()
