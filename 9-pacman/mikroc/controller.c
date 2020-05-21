@@ -350,13 +350,17 @@ void muda_direcao()
 void tick_fantasma()
 {
 
-    for (k = 0; k < 4; i++) {
+    for (k = 0; k < 5; k++) {
         calc_direcao();
         if (is_parede(mapa[i_][j_]) || is_fantasma(buffer_value(mapa[i_][j_])))
         {
             muda_direcao();
             continue;
         }
+        break;
+    }
+    if (is_parede(mapa[i_][j_]) || is_fantasma(buffer_value(mapa[i_][j_])))
+    {
         return;
     }
     if (is_pacman(buffer_value(mapa[i_][j_])))
