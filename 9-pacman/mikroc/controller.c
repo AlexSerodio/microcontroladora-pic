@@ -90,6 +90,8 @@ int j;
 int i_;
 int j_;
 
+int k;
+
 int ramdom;
 
 unsigned short dire;
@@ -183,26 +185,6 @@ unsigned short is_parede(unsigned short obj)
 }
 
 unsigned short is_pilula(unsigned short obj)
-{
-    return valor(obj) == 0B00001010;
-}
-
-unsigned short _is_fantasma(unsigned short obj)
-{
-    return obj & 0B00000001 == 0B00000001;
-}
-
-unsigned short _is_pacman(unsigned short obj)
-{
-    return tipo(obj) == 0B00000000;
-}
-
-unsigned short _is_parede(unsigned short obj)
-{
-    return valor(obj) == 0B00000110;
-}
-
-unsigned short _is_pilula(unsigned short obj)
 {
     return valor(obj) == 0B00001010;
 }
@@ -332,7 +314,7 @@ void muda_direcao()
 void tick_fantasma()
 {
 
-    for (int k = 0; k < 4; i++) {
+    for (k = 0; k < 4; i++) {
         calc_direcao();
         if (is_parede(mapa[i_][j_]) || is_fantasma(buffer_value(mapa[i_][j_])))
         {
@@ -471,7 +453,7 @@ void tick_pacman()
 
 void add_pilula_mapa()
 {
-    while 1
+    while (1)
     {
         i = rand() % sizeof(mapa);
         j = rand() % sizeof(mapa[i]);
@@ -490,7 +472,7 @@ void add_pilula_mapa()
 
 void add_fantasma()
 {
-    while 1
+    while (1)
     {
         i = rand() % sizeof(mapa);
         j = rand() % sizeof(mapa[i]);
@@ -580,4 +562,35 @@ void tick()
     swap_buffer();
 
     input = 0b00000000;
+}
+
+
+unsigned short _tipo(unsigned short obj)
+{
+    return obj & MASCARA_TIPO;
+}
+
+unsigned short _is_fantasma(unsigned short obj)
+{
+    return obj & 0B00000001 == 0B00000001;
+}
+
+unsigned short _is_pacman(unsigned short obj)
+{
+    return _tipo(obj) == 0B00000000;
+}
+
+unsigned short _valor(unsigned short obj)
+{
+    return obj & MASCARA_VALOR;
+}
+
+unsigned short _is_parede(unsigned short obj)
+{
+    return _valor(obj) == 0B00000110;
+}
+
+unsigned short _is_pilula(unsigned short obj)
+{
+    return _valor(obj) == 0B00001010;
 }
