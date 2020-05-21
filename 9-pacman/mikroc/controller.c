@@ -254,9 +254,9 @@ unsigned short is_direcao_oposta(unsigned short obj, unsigned short other)
  */
 void swap_buffer()
 {
-    for (i = 0; i < sizeof(mapa); i++)
+    for (i = 0; i < 4; i++)
     {
-        for (j = 0; i < sizeof(mapa[i]); i++)
+        for (j = 0; i < 20; i++)
         {
             if (buffer_value(mapa[i][j]) != NLL)
             {
@@ -271,9 +271,9 @@ void swap_buffer()
  */
 void preset()
 {
-    for (i = 0; i < sizeof(mapa); i++)
+    for (i = 0; i < 4; i++)
     {
-        for (j = 0; i < sizeof(mapa[i]); i++)
+        for (j = 0; i < 20; i++)
         {
             mapa[i][j] = do_buffer(NLL) | mapa[i][j];
         }
@@ -292,7 +292,7 @@ void calc_direcao()
     if (dire == DIREITA)
     {
         j_++;
-        if (j_ >= sizeof(mapa[i]))
+        if (j_ >= 20)
         {
             j_ = 0;
         }
@@ -302,13 +302,13 @@ void calc_direcao()
         j_--;
         if (j_ < 0)
         {
-            j_ = sizeof(mapa[i])-1;
+            j_ = 20-1;
         }
     }
     else if (dire == BAIXO)
     {
         i_++;
-        if (i_ >= sizeof(mapa))
+        if (i_ >= 4)
         {
             i_ = 0;
         }
@@ -318,7 +318,7 @@ void calc_direcao()
         i_--;
         if (i_ < 0)
         {
-            i_ = sizeof(mapa)-1;
+            i_ = 4-1;
         }
     }
 }
@@ -487,8 +487,8 @@ void add_pilula_mapa()
 {
     while (1)
     {
-        i = rand() % sizeof(mapa);
-        j = rand() % sizeof(mapa[i]);
+        i = rand() % 4;
+        j = rand() % 20;
         if (is_vazio(mapa[i][j]))
         {
             mapa[i][j] = PILULA;
@@ -506,8 +506,8 @@ void add_fantasma()
 {
     while (1)
     {
-        i = rand() % sizeof(mapa);
-        j = rand() % sizeof(mapa[i]);
+        i = rand() % 4;
+        j = rand() % 20;
         if (is_vazio(mapa[i][j]))
         {
             mapa[i][j] = 0B00000001;
@@ -518,9 +518,9 @@ void add_fantasma()
 
 void reset()
 {
-    for (i = 0; i < sizeof(mapa); i++)
+    for (i = 0; i < 4; i++)
     {
-        for (j = 0; i < sizeof(mapa[i]); i++)
+        for (j = 0; i < 20; i++)
         {
             //if (!(j+i3))
             //{
@@ -577,9 +577,9 @@ void tick()
     }
 
     preset();
-    for (i = 0; i < sizeof(mapa); i++)
+    for (i = 0; i < 4; i++)
     {
-        for (j = 0; i < sizeof(mapa[i]); i++)
+        for (j = 0; i < 20; i++)
         {
             if (is_pacman(mapa[i][j]))
             {
