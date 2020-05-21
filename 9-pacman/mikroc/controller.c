@@ -475,7 +475,7 @@ void tick_pacman()
             return;
         }
     }
-    else if (is_parede(mapa[i][j]) == 0)
+    else if (is_parede(mapa[i][j]))
     {
         mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(mapa[i][j]);
         mapa[i][j] = valor(mapa[i][j]) | do_buffer(BRANCO);
