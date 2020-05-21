@@ -567,7 +567,7 @@ void tick()
             input = 0b00000000;
             return;
         }
-        if ((buffer_value(input) & MASCARA_PAUSE) > 0)
+        if ((buffer_value(input) & MASCARA_VIVO) > 0)
         {
             add_fantasma();
             input = 0b00000000;
