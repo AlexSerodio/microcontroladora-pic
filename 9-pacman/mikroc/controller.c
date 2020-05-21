@@ -171,32 +171,56 @@ unsigned short morto()
 
 unsigned short is_fantasma(unsigned short obj)
 {
-    return obj & 0B00000001 == 0B00000001;
+    if ((obj & 0B00000001) == 0B00000001)
+    {
+        return 1;
+    }
+    return 0;
 }
 
 unsigned short is_pacman(unsigned short obj)
 {
-    return tipo(obj) == 0B00000000;
+    if tipo(obj) == 0B00000000
+    {
+        return 1;
+    }
+    return 0;
 }
 
 unsigned short is_parede(unsigned short obj)
 {
-    return valor(obj) == 0B00000110;
+    if valor(obj) == 0B00000110
+    {
+        return 1;
+    }
+    return 0;
 }
 
 unsigned short is_pilula(unsigned short obj)
 {
-    return valor(obj) == 0B00001010;
+    if valor(obj) == 0B00001010
+    {
+        return 1;
+    }
+    return 0;
 }
 
 unsigned short is_vazio(unsigned short obj)
 {
-    return valor(obj) == 0B00000010;
+    if valor(obj) == 0B00000010
+    {
+        return 1;
+    }
+    return 0;
 }
 
 unsigned short is_null(unsigned short obj)
 {
-    return valor(obj) == 0B00001110;
+    if valor(obj) == 0B00001110
+    {
+        return 1;
+    }
+    return 0;
 }
 
 unsigned short has_pilula(unsigned short obj)
@@ -211,7 +235,11 @@ unsigned short is_direcao_oposta(unsigned short obj, unsigned short other)
         return 0;
     }
 
-    return (obj & 0b000001000) != (other & 0b000001000);
+    if (obj & 0b000001000) != (other & 0b000001000);
+    {
+        return 1;
+    }
+    return 0;
 }
 
 /*
@@ -572,12 +600,20 @@ unsigned short _tipo(unsigned short obj)
 
 unsigned short _is_fantasma(unsigned short obj)
 {
-    return obj & 0B00000001 == 0B00000001;
+    if (obj & 0B00000001) == 0B00000001;
+    {
+        return 1;
+    }
+    return 0;
 }
 
 unsigned short _is_pacman(unsigned short obj)
 {
-    return _tipo(obj) == 0B00000000;
+    if (_tipo(obj) == 0B00000000)
+    {
+        return 1;
+    }
+    return 0;
 }
 
 unsigned short _valor(unsigned short obj)
@@ -587,10 +623,18 @@ unsigned short _valor(unsigned short obj)
 
 unsigned short _is_parede(unsigned short obj)
 {
-    return _valor(obj) == 0B00000110;
+    if (_valor(obj) == 0B00000110)
+    {
+        return 1;
+    }
+    return 0;
 }
 
 unsigned short _is_pilula(unsigned short obj)
 {
-    return _valor(obj) == 0B00001010;
+    if (_valor(obj) == 0B00001010)
+    {
+        return 1;
+    }
+    return 0;
 }
