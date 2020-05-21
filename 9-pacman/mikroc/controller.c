@@ -451,7 +451,7 @@ void tick_pacman()
     if ((input) > 0)
     {
         //muda a direção se input for não nill
-        mapa[i][j] = (mapa[i][j] & 0B11110011) & direcao(input);
+        mapa[i][j] = (mapa[i][j] & 0B11110011) | direcao(input);
         input = 0b00000000;
     }
 
@@ -471,8 +471,7 @@ void tick_pacman()
             return;
         }
     }
-
-    if (!is_parede(mapa[i][j]))
+    else if (!is_parede(mapa[i][j]))
     {
         mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(mapa[i][j]);
         mapa[i][j] = valor(mapa[i][j]) | do_buffer(BRANCO);
