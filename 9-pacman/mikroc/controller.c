@@ -540,6 +540,7 @@ void reset()
     add_pilula_mapa();
     add_fantasma();
     mapa[0][0] = 0b00000000;
+    estado = 0b00000000;
 }
 
 
