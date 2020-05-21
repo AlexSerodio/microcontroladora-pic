@@ -444,7 +444,7 @@ void tick_fantasma()
 
 void tick_pacman()
 {
-    if (input)
+    if ((input) > 0)
     {
         //muda a direção se input for não nill
         mapa[i][j] = (mapa[i][j] & 0B11110011) & direcao(input);
@@ -541,13 +541,13 @@ void reset()
 void tick()
 {
 
-    if (input & MASCARA_PAUSE)
+    if ((input & MASCARA_PAUSE) > 0)
     {
         estado = estado ^ MASCARA_PAUSE;
         input = 0b00000000;
     }
 
-    if (input & MASCARA_VIVO)
+    if ((input & MASCARA_VIVO) > 0)
     {
         reset();
         input = 0b00000000;
@@ -556,13 +556,13 @@ void tick()
 
     if (!valor(input) && buffer_value(input))
     {
-        if (buffer_value(input) & MASCARA_PAUSE)
+        if ((buffer_value(input) & MASCARA_PAUSE) > 0)
         {
             add_pilula_mapa();
             input = 0b00000000;
             return;
         }
-        if (buffer_value(input) & MASCARA_PAUSE)
+        if ((buffer_value(input) & MASCARA_PAUSE) > 0)
         {
             add_fantasma();
             input = 0b00000000;
