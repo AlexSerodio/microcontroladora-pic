@@ -256,7 +256,7 @@ void swap_buffer()
 {
     for (i = 0; i < 4; i++)
     {
-        for (j = 0; j < 20; i++)
+        for (j = 0; j < 20; j++)
         {
             if (buffer_value(mapa[i][j]) != NLL)
             {
@@ -273,7 +273,7 @@ void preset()
 {
     for (i = 0; i < 4; i++)
     {
-        for (j = 0; j < 20; i++)
+        for (j = 0; j < 20; j++)
         {
             mapa[i][j] = do_buffer(NLL) | mapa[i][j];
         }
@@ -520,7 +520,7 @@ void reset()
 {
     for (i = 0; i < 4; i++)
     {
-        for (j = 0; j < 20; i++)
+        for (j = 0; j < 20; j++)
         {
             //if (!(j+i3))
             //{
@@ -579,7 +579,7 @@ void tick()
     preset();
     for (i = 0; i < 4; i++)
     {
-        for (j = 0; j < 20; i++)
+        for (j = 0; j < 20; j++)
         {
             if (is_pacman(mapa[i][j]))
             {
