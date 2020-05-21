@@ -522,18 +522,18 @@ void reset()
     {
         for (j = 0; i < sizeof(mapa[i]); i++)
         {
-            if (!(j%i) && !(j%3))
-            {
-                mapa[i][j] = PAREDE;
-            }
-            else
-            {
+            //if (!(j+i3))
+            //{
+            //    mapa[i][j] = PAREDE;
+            //}
+            //else
+            //{
                 mapa[i][j] = BRANCO;
-            }
+            //}
         }
     }
-    add_pilula_mapa();
-    add_fantasma();
+    //add_pilula_mapa();
+    //add_fantasma();
     mapa[0][0] = 0b00000000;
 }
 
@@ -604,7 +604,7 @@ unsigned short _tipo(unsigned short obj)
 
 unsigned short _is_fantasma(unsigned short obj)
 {
-    if (obj & 0B00000001) == 0B00000001;
+    if ((obj & 0B00000001) == 0B00000001)
     {
         return 1;
     }
