@@ -182,6 +182,31 @@ unsigned short is_parede(unsigned short obj)
     return valor(obj) == 0B00000110;
 }
 
+unsigned short is_pilula(unsigned short obj)
+{
+    return valor(obj) == 0B00001010;
+}
+
+unsigned short _is_fantasma(unsigned short obj)
+{
+    return obj & 0B00000001 == 0B00000001;
+}
+
+unsigned short _is_pacman(unsigned short obj)
+{
+    return tipo(obj) == 0B00000000;
+}
+
+unsigned short _is_parede(unsigned short obj)
+{
+    return valor(obj) == 0B00000110;
+}
+
+unsigned short _is_pilula(unsigned short obj)
+{
+    return valor(obj) == 0B00001010;
+}
+
 unsigned short is_vazio(unsigned short obj)
 {
     return valor(obj) == 0B00000010;
@@ -190,11 +215,6 @@ unsigned short is_vazio(unsigned short obj)
 unsigned short is_null(unsigned short obj)
 {
     return valor(obj) == 0B00001110;
-}
-
-unsigned short is_pilula(unsigned short obj)
-{
-    return valor(obj) == 0B00001010;
 }
 
 unsigned short has_pilula(unsigned short obj)
