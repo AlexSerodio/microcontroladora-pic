@@ -559,7 +559,7 @@ void tick()
         return;
     }
 
-    if (!valor(input) && buffer_value(input))
+    if ((!valor(input)) && buffer_value(input) > 0)
     {
         if ((buffer_value(input) & MASCARA_PAUSE) > 0)
         {
@@ -577,7 +577,6 @@ void tick()
 
     if (pausado() || morto())
     {
-        input = 0b00000000;
         return;
     }
 
