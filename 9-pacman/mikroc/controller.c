@@ -477,6 +477,10 @@ void tick_pacman()
     }
     else if (is_parede(mapa[i][j]))
     {
+        mapa[i][j] = valor(mapa[i][j]) | buffer_value(mapa[i][j]);
+    }
+    else
+    {
         mapa[i_][j_] = valor(mapa[i_][j_]) | do_buffer(mapa[i][j]);
         mapa[i][j] = valor(mapa[i][j]) | do_buffer(BRANCO);
 
@@ -484,10 +488,6 @@ void tick_pacman()
         {
             set_pontuacao(pontuacao() + 1);
         }
-    }
-    else
-    {
-        mapa[i][j] = valor(mapa[i][j]) | buffer_value(mapa[i][j]);
     }
 }
 
