@@ -225,7 +225,7 @@ unsigned short is_null(unsigned short obj)
 
 unsigned short has_pilula(unsigned short obj)
 {
-    if (obj & 0B00000011 == 0B00000011)
+    if ((obj & 0B00000011) == 0B00000011)
     {
         return 1;
     }
