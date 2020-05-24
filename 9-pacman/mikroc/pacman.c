@@ -18,23 +18,9 @@ sbit LCD_D6_Direction at TRISD6_bit;
 sbit LCD_D5_Direction at TRISD5_bit;
 sbit LCD_D4_Direction at TRISD4_bit;
 
-unsigned int AD;        //0..1023
-char TXT[7];
-unsigned short Temperatura;
-
-int hhh, mmm, sss;
-int critic_hhh, critic_mmm;
-
-char ENTER[2] = {13,0};
-
-char ENTRADA[33]; //32 para o dado entrado + reserva do NULL
-
-int temp;
-char _char;
-
 short Le_Teclado()
 {
-    PORTD = 0B00010000; // VOC� SELECIONOU LA
+    PORTD = 0B00010000; // VOCE SELECIONOU LA
     if (PORTA.RA5 == 1) {
         while(PORTA.RA5 == 1);
         return '7';
@@ -52,7 +38,7 @@ short Le_Teclado()
         return '%';
     }
 
-    PORTD = 0B00100000; // VOC� SELECIONOU LB
+    PORTD = 0B00100000; // VOCE SELECIONOU LB
     if (PORTA.RA5 == 1) {
         while(PORTA.RA5 == 1);
         return '4';
@@ -70,7 +56,7 @@ short Le_Teclado()
         return '*';
     }
 
-    PORTD = 0B01000000; // VOC� SELECIONOU LC
+    PORTD = 0B01000000; // VOCE SELECIONOU LC
     if (PORTA.RA5 == 1) {
         while(PORTA.RA5 == 1);
         return '1';
@@ -88,7 +74,7 @@ short Le_Teclado()
         return '-';
     }
 
-    PORTD = 0B10000000; // VOC� SELECIONOU LD
+    PORTD = 0B10000000; // VOCE SELECIONOU LD
     if (PORTA.RA5 == 1) {
         while(PORTA.RA5 == 1);
         return 'C';
@@ -109,18 +95,18 @@ short Le_Teclado()
     return 255;
 }
 
-void InitTimer2_Int0(){
+void InitTimer2_Int0()
+{
     T2CON = 0x3C;
     TMR2IE_bit = 1;
     PR2 = 249;
-    INTCON = 0xD0;  //INTCON = 1100 0000 (HABILITA TMR2 INTERRUPT E INT0 INTERRUPT)
+    INTCON = 0xD0;      //INTCON = 1100 0000 (HABILITA TMR2 INTERRUPT E INT0 INTERRUPT)
 }
 
 void interrupt() 
 {
     if(int0if_bit) {
         tick();
-        // UART1_Write_Text("chamou tick");
         int0if_bit = 0;
     }
 }
@@ -131,19 +117,21 @@ void Pula_Linha(void)
     UART1_WRITE(10);
 }
 
-void Move_Delay() 
-{                         // Function used for text moving
-    Delay_ms(100);                             // You can change the moving speed here
+void Move_Delay()                       // Function used for text moving
+{                         
+    Delay_ms(100);                      // You can change the moving speed here
 }
 
 void Alert() 
 {
     int i;
-    for(i=0; i<1; i++) {               // Move text to the right 4 times
+    for(i=0; i<1; i++)                  // Move text to the right 4 times
+    {
         Lcd_Cmd(_LCD_SHIFT_RIGHT);
         Move_Delay();
     }
-    for(i=0; i<1; i++) {               // Move text to the left 4 times
+    for(i=0; i<1; i++)                  // Move text to the left 4 times
+    {
         Lcd_Cmd(_LCD_SHIFT_LEFT);
         Move_Delay();
     }
@@ -193,6 +181,7 @@ int Read_RTC(int END)
     I2C1_Stop();            // issue I2C stop signal
     return(Dado);
 }
+
 // bcd para binario
 void Transform_Time(char *sec, char *min, char *hr)
 {
@@ -203,10 +192,13 @@ void Transform_Time(char *sec, char *min, char *hr)
 
 void Le_Entrada_Cmd(char slot[], int showInput, int row, int column)
 {
+    char _char;
+
     for (i = 0; i < sizeof(slot); i++) 
     {
         slot[i] = 0;
     }
+
     i = 0;
     while((_char = Le_Teclado()) != '=') 
     {
@@ -232,20 +224,22 @@ void Le_Entrada_Cmd(char slot[], int showInput, int row, int column)
     }
 }
 
-void Le_Entrada(char slot[]) {
+void Le_Entrada(char slot[])
+{
     Le_Entrada_Cmd(slot, 0, 0, 0);
 }
 
-void Le_Entrada_Cp(char slot[], int row, int column) {
+void Le_Entrada_Cp(char slot[], int row, int column)
+{
     Le_Entrada_Cmd(slot, 1, row, column);
 }
 
 short PACMAN_SYMBOL = 0;
 short WALL_SYMBOL = 1;
 short GHOST_SYMBOL = 2;
-char PILULA_SYMBOL = 'P';
-
-void draw_world() {
+char PILULA_SYMBOL = 3;
+void draw_world()
+{
     int i;
     int j;
     for(i = 0; i < 4; i++) 
@@ -267,14 +261,16 @@ void draw_world() {
             else if(_is_pilula(mapa[i][j]))
             {
                 Lcd_Chr(i + 1, j + 1, PILULA_SYMBOL);
-            }else {
+            }
+            else {
                 Lcd_Chr(i + 1, j + 1, ' ');
             }
         }
     }
 }
 
-void print_world() {
+void print_world()
+{
     int i;
     int j;
     char string[10];
@@ -283,54 +279,64 @@ void print_world() {
     {
         for(j = 0; j < 20; j++)
         {
-                // int num = (int)strtol((int)mapa[i][j], NULL, 16);
             sprintf(string, "%X", (int)mapa[i][j]);
             UART1_Write_Text(string);
-                UART1_Write_Text(" ");
+            UART1_Write_Text(" ");
         }
         Pula_Linha();
     }
-        sprintf(string, "%X", (int)input);
+    sprintf(string, "%X", (int)input);
     UART1_Write_Text(string);
-        Pula_Linha();
+    Pula_Linha();
 }
 
 const char character_pacman[] = {31,30,28,24,24,28,30,31};
 const char character_wall[] = {31,31,31,31,31,31,31,31};
-const char character_ghost[] = {31,31,21,31,17,21,31,21};
+const char character_ghost[] = {31,21,31,17,21,31,21,21};
+const char character_food[] = {0,14,14,31,31,14,14,0};
 void custom_char() 
 {
     char i;
     LCD_Cmd(64); //entra na
-    for (i = 0; i<=7; i++) LCD_Chr_Cp(character_pacman[i]); //grava 8 bytes na cgram ENDER 0 a 7  cgram
-    for (i = 0; i<=7; i++) LCD_Chr_Cp(character_wall[i]); //grava 8 bytes na cgram ENDER 8 a 15 cgram
-    for (i = 0; i<=7; i++) LCD_Chr_Cp(character_ghost[i]); //grava 8 bytes na cgram ENDER 8 a 15 cgram
+    for (i = 0; i<=7; i++) LCD_Chr_Cp(character_pacman[i]);
+    for (i = 0; i<=7; i++) LCD_Chr_Cp(character_wall[i]);
+    for (i = 0; i<=7; i++) LCD_Chr_Cp(character_ghost[i]);
+    for (i = 0; i<=7; i++) LCD_Chr_Cp(character_food[i]);
     LCD_Cmd(_LCD_RETURN_HOME); //sai da cgram
+}
+
+void reset_game()
+{
+    input = MASCARA_VIVO;
+    Lcd_Cmd(_LCD_CLEAR);
 }
 
 void start_game_screen() 
 {
-    Lcd_Out(2, 1, "PRESSIONE =");
-    Lcd_Out(3, 1, "PARA INICIAR");
+    Lcd_Out(2, 6, "PRESSIONE =");
+    Lcd_Out(3, 5, "PARA INICIAR");
 
     while (Le_Teclado() != '=');
 
-    Lcd_Cmd(_LCD_CLEAR);
+    reset_game();
 }
 
 void game_over_screen() 
 {
-    Lcd_Out(2, 1, "GAME OVER");
-    Lcd_Out(3, 1, "PONTUACAO: ");
-    Lcd_Out(3, 15, pontuacao());
+    char string[10];
+    sprintf(string, "%X", (int)pontuacao());
+
+    Lcd_Cmd(_LCD_CLEAR);
+    Lcd_Out(2, 6, "GAME OVER");
+    Lcd_Out(3, 5, "PONTUACAO: ");
+    Lcd_Out(3, 16, string);
 }
 
-char command;
-short drawInfoLabel = 1;
-char HORA_TXT[20];
 void main()
 {
-        INTCON = 0xD0;
+    char command;
+
+    INTCON = 0xD0;
     UART1_Init(19200);
     I2C1_Init(100000);// i2c para acessar ID = D0h  = RTC
 
@@ -344,62 +350,55 @@ void main()
 
     start_game_screen();
 
-// input = MASCARA_VIVO;
-
     draw_world();
-    
-    while(1)
+
+    while(!morto())
     {
+        draw_world();
+
         command = Le_Teclado();
-
-        // pra simular um game over
-        if(command == '+')
-                break;
-
+        
         if(command != 255)
         {
             UART1_Write(command);
             switch(command) {
                 case '6':
-                    UART1_Write_Text(" - direita"); Pula_Linha();
                     input = 0B01000000 | DIREITA;
+                    UART1_Write_Text(" - andou direita"); Pula_Linha();
                     break;
                 case '4':
-                    UART1_Write_Text(" - esquerda"); Pula_Linha();
                     input = 0B01000000 | ESQUERDA;
+                    UART1_Write_Text(" - andou esquerda"); Pula_Linha();
                     break;
                 case '8':
-                    UART1_Write_Text(" - cima"); Pula_Linha();
                     input = 0B01000000 | CIMA;
+                    UART1_Write_Text(" - andou cima"); Pula_Linha();
                     break;
                 case '2':
-                    UART1_Write_Text(" - baixo"); Pula_Linha();
                     input = 0B01000000 | BAIXO;
+                    UART1_Write_Text(" - andou baixo"); Pula_Linha();
                     break;
                 case '9':
-                    UART1_Write_Text(" - pause"); Pula_Linha();
                     input = MASCARA_PAUSE;
+                    UART1_Write_Text(" - jogo pausado"); Pula_Linha();
                     break;
                 case '7':
-                    UART1_Write_Text(" - reset"); Pula_Linha();
-                    input = MASCARA_VIVO;
-                    Lcd_Cmd(_LCD_CLEAR);
+                    reset_game();
+                    UART1_Write_Text(" - jogo reiniciado"); Pula_Linha();
                     break;
                 case '1':
-                    UART1_Write_Text(" - add fantasma"); Pula_Linha();
                     input = 0B00100000;
+                    UART1_Write_Text(" - adicionado fantasma"); Pula_Linha();
                     break;
                 case '3':
-                    UART1_Write_Text(" - add cumida"); Pula_Linha();
                     input = 0B00010000;
+                    UART1_Write_Text(" - adicionado pilula"); Pula_Linha();
                     break;
                 case '5':
                     print_world();
-                    
                     break;
             }
         }
-        draw_world();
     }
 
     game_over_screen();
