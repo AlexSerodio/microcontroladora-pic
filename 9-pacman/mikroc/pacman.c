@@ -103,15 +103,7 @@ void InitTimer2_Int0()
     INTCON = 0xD0;      //INTCON = 1100 0000 (HABILITA TMR2 INTERRUPT E INT0 INTERRUPT)
 }
 
-void interrupt() 
-{
-    if(int0if_bit) {
-        tick();
-        int0if_bit = 0;
-    }
-}
-
-void Pula_Linha(void) 
+void Pula_Linha(void)
 {
     UART1_WRITE(13);
     UART1_WRITE(10);
@@ -122,7 +114,7 @@ void Move_Delay()                       // Function used for text moving
     Delay_ms(100);                      // You can change the moving speed here
 }
 
-void Alert() 
+void Alert()
 {
     int i;
     for(i=0; i<1; i++)                  // Move text to the right 4 times
@@ -147,7 +139,7 @@ void Write_EEPROM(int END, int DADO)
     delay_ms(10);
 }
 
-int Read_EEPROM(int END) 
+int Read_EEPROM(int END)
 {
     int Dado;
     I2C1_Start();           // issue I2C start signal
@@ -294,7 +286,7 @@ const char character_pacman[] = {31,30,28,24,24,28,30,31};
 const char character_wall[] = {31,31,31,31,31,31,31,31};
 const char character_ghost[] = {31,21,31,17,21,31,21,21};
 const char character_food[] = {0,14,14,31,31,14,14,0};
-void custom_char() 
+void custom_char()
 {
     char i;
     LCD_Cmd(64); //entra na
@@ -307,21 +299,43 @@ void custom_char()
 
 void reset_game()
 {
+    Sound_Play(130, 200);
+    Sound_Play(146, 200);
+    Sound_Play(164, 200);
+    Sound_Play(174, 200);
+    Sound_Play(196, 200);
+
     input = MASCARA_VIVO;
     Lcd_Cmd(_LCD_CLEAR);
 }
 
-void start_game_screen() 
+const int DO1 = 65;
+const int RE_1 = 73;
+const int MI1 = 82;
+const int FA1 = 87;
+const int SOL1 = 98;
+const int LA1 = 110;
+const int SI1 = 123;
+const int DO2 = 131;
+
+int FAZ_TICK = 1;
+int ADD_COMIDA = 0;
+
+void start_game_screen()
 {
+    Sound_Play(174, 200);
+    Sound_Play(196, 200);
+
     Lcd_Out(2, 6, "PRESSIONE =");
     Lcd_Out(3, 5, "PARA INICIAR");
 
-    while (Le_Teclado() != '=');
-
+    while (Le_Teclado() != '=')
+        reset();
+    
     reset_game();
 }
 
-void game_over_screen() 
+void game_over_screen()
 {
     char string[10];
     sprintf(string, "%X", (int)pontuacao());
@@ -330,6 +344,11 @@ void game_over_screen()
     Lcd_Out(2, 6, "GAME OVER");
     Lcd_Out(3, 5, "PONTUACAO: ");
     Lcd_Out(3, 16, string);
+    Sound_Play(196, 200);
+    Sound_Play(174, 200);
+    Sound_Play(164, 200);
+    Sound_Play(146, 200);
+    Sound_Play(130, 200);
 }
 
 void main()
@@ -348,12 +367,26 @@ void main()
     Lcd_Cmd(_LCD_CURSOR_OFF);
     custom_char();
 
+    Sound_Init(&PORTC, 5);
+
     start_game_screen();
 
     draw_world();
 
     while(!morto())
     {
+        if(FAZ_TICK)
+        {
+            tick();
+            // Sound_Play(196, 200);
+        }
+
+        if(ADD_COMIDA)
+        {
+            add_pilula_mapa();
+            ADD_COMIDA = 0;
+        }
+
         draw_world();
 
         command = Le_Teclado();
@@ -402,4 +435,18 @@ void main()
     }
 
     game_over_screen();
+}
+
+int cnt= 0;
+void interrupt()
+{
+    if(int0if_bit) {
+        FAZ_TICK = !FAZ_TICK;
+        int0if_bit = 0;
+        cnt++;
+        if(cnt == 10) {
+            ADD_COMIDA = 1;
+            cnt = 0;
+        }
+    }
 }

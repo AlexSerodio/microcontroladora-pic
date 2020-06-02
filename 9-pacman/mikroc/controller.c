@@ -531,7 +531,7 @@ void reset()
     {
         for (j = 0; j < 20; j++)
         {
-            if ((!((j+i)%6) || j%4==i%3) && i )
+            if ((!((j+i)%6) || j%4==i%3) && (j % 2 == 0))
             {
                mapa[i][j] = PAREDE;
             }
@@ -542,6 +542,8 @@ void reset()
         }
     }
     add_pilula_mapa();
+    add_pilula_mapa();
+    // add_fantasma();
     add_fantasma();
     mapa[0][0] = 0b00000000;
     estado = 0b00000000;
