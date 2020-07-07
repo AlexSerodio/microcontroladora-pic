@@ -60,6 +60,13 @@ DHT dht(DHTPIN, DHTTYPE);
 
 float h, t;
 
+int old_cozinha = -1;
+int old_quarto = -1;
+int old_sala = -1;
+int old_escritorio = -1;
+
+int notificar = 0;
+
 // This function sends Arduino's up time every second to Virtual Pin (5).
 // In the app, Widget's reading frequency should be set to PUSH. This means
 // that you define how often to send data to Blynk App.
@@ -74,12 +81,56 @@ void myTimerEvent()
 //  Blynk.virtualWrite(V3, analogRead(A3));
   //Blynk.virtualWrite(V0, millis() / 1000);
 
-  h = dht.readHumidity();
-  Blynk.virtualWrite(V0, h);
+//  h = dht.readHumidity();
+//  Blynk.virtualWrite(V0, h);
+//  
+//  t = dht.readTemperature();
+//  Blynk.virtualWrite(V1, t);
+
+//  Serial.println(digitalRead(8));
+
+  int cozinha = digitalRead(8);
+  int quarto = digitalRead(9);
+  int sala = digitalRead(12);
+  int escritorio = digitalRead(13);
+
+  if(cozinha != old_cozinha)
+  {
+    Blynk.virtualWrite(V0, "add", 0, "Cozinha", cozinha ? "Aberto" : "Fechado");
+    Blynk.virtualWrite(V0, cozinha ? "select" : "deselect", 0);
+    if(cozinha and notificar)
+      Blynk.notify("Você esqueceu a cozinha aberta!");
+    old_cozinha = cozinha;
+  }
+
+  if(quarto != old_quarto)
+  {
+    Blynk.virtualWrite(V0, "add", 1, "Quarto", quarto ? "Aberto" : "Fechado");
+    Blynk.virtualWrite(V0, quarto ? "select" : "deselect", 1);
+    if(quarto && notificar)
+      Blynk.notify("Você esqueceu o quarto aberto!");
+    old_quarto = quarto;
+  }
+
+  if(sala != old_sala)
+  {
+    Blynk.virtualWrite(V0, "add", 2, "Sala", sala ? "Aberto" : "Fechado");
+    Blynk.virtualWrite(V0, sala ? "select" : "deselect", 2);
+    if(sala && notificar)
+      Blynk.notify("Você esqueceu a sala aberta!");
+    old_sala = sala;
+  }
+
+  if(escritorio != old_escritorio)
+  {
+    Blynk.virtualWrite(V0, "add", 3, "Escritorio", escritorio ? "Aberto" : "Fechado");
+    Blynk.virtualWrite(V0, escritorio ? "select" : "deselect", 3);
+    if(escritorio && notificar)
+      Blynk.notify("Você esqueceu o escritório aberto!");
+    old_escritorio = escritorio;
+  }
   
-  t = dht.readTemperature();
-  Blynk.virtualWrite(V1, t);
-  
+//  Blynk.virtualWrite(V1, t);
 }
 
 void notifyUptime()
@@ -89,55 +140,66 @@ void notifyUptime()
   // Actually send the message.
   // Note:
   //   We allow 1 notification per 5 seconds for now.
-  Blynk.notify(String("Running for ") + uptime + " minutes.");
+  Blynk.notify(String("Você esqueceu algo aberto") + uptime + " minutes.");
 
   // You can also use {DEVICE_NAME} placeholder for device name,
   // that will be replaced by your device name on the server side.
   // Blynk.notify(String("{DEVICE_NAME} running for ") + uptime + " minutes.");
 }
 
+BLYNK_WRITE(V1)
+{
+  int buttonState = param.asInt();
+  notificar = buttonState;
+}
+
 // This function will be called every time Slider Widget
 // in Blynk app writes values to the Virtual Pin 1
-BLYNK_WRITE(V4)
-{
-  int pinValue = param.asInt();
-  digitalWrite(4, pinValue);
-}
-
-BLYNK_WRITE(V5)
-{
-  int pinValue = param.asInt();
-  digitalWrite(5, pinValue);
-}
-
-BLYNK_WRITE(V6)
-{
-  int pinValue = param.asInt();
-  digitalWrite(6, pinValue);
-}
-
-BLYNK_WRITE(V7)
-{
-  int pinValue = param.asInt();
-  digitalWrite(7, pinValue);
-}
+//BLYNK_WRITE(V4)
+//{
+//  int pinValue = param.asInt();
+//  digitalWrite(4, pinValue);
+//}
+//
+//BLYNK_WRITE(V5)
+//{
+//  int pinValue = param.asInt();
+//  digitalWrite(5, pinValue);
+//}
+//
+//BLYNK_WRITE(V6)
+//{
+//  int pinValue = param.asInt();
+//  digitalWrite(6, pinValue);
+//}
+//
+//BLYNK_WRITE(V7)
+//{
+//  int pinValue = param.asInt();
+//  digitalWrite(7, pinValue);
+//}
 
 void setup()
 {
   // Debug console
   Serial.begin(9600);
 
-  dht.begin();
+//  dht.begin();
 
-  pinMode(4, OUTPUT);
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
+//  pinMode(4, OUTPUT);
+//  pinMode(5, OUTPUT);
+//  pinMode(6, OUTPUT);
+//  pinMode(7, OUTPUT);
+//
+//  digitalWrite(4, LOW);
+//  digitalWrite(5, LOW);
+//  digitalWrite(6, LOW);
+//  digitalWrite(7, LOW);
 
-  digitalWrite(4, LOW);
-  digitalWrite(5, LOW);
-  digitalWrite(6, LOW);
-  digitalWrite(7, LOW);
+  pinMode(8, INPUT);
+  pinMode(9, INPUT);
+  pinMode(12, INPUT);
+  pinMode(13, INPUT);
 
   Blynk.begin(auth);
   // You can also specify server:
@@ -145,10 +207,12 @@ void setup()
   //Blynk.begin(auth, IPAddress(192,168,100,1), 8080);
 
   // Notify immediately on startup
-  Blynk.notify("Device started");
+//  Blynk.notify("Device started");
 
   // Setup a function to be called every minute
-  timer.setInterval(60000L, notifyUptime);
+  //timer.setInterval(60000L, notifyUptime);
+
+  Blynk.virtualWrite(V0, "clr");
 
   // Setup a function to be called every second
   timer.setInterval(1000L, myTimerEvent);
